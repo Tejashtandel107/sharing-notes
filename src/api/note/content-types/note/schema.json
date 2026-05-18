@@ -1,0 +1,99 @@
+{
+  "kind": "collectionType",
+  "collectionName": "notes",
+  "info": {
+    "singularName": "note",
+    "pluralName": "notes",
+    "displayName": "note"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "saved_notes"
+    },
+    "materialType": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "Pdf",
+        "Document",
+        "Image",
+        "Video",
+        "Link",
+        "Other"
+      ]
+    },
+    "isPastPaper": {
+      "type": "boolean",
+      "default": false
+    },
+    "file": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "externalLink": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::subject.subject",
+      "inversedBy": "notes"
+    },
+    "semester": {
+      "type": "integer",
+      "required": true
+    },
+    "rating": {
+      "type": "decimal",
+      "default": 5
+    },
+    "topic": {
+      "type": "string",
+      "required": true
+    },
+    "reviews": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::review.review",
+      "mappedBy": "note"
+    },
+    "paperYear": {
+      "type": "integer"
+    },
+    "downloaded": {
+      "type": "biginteger"
+    },
+    "download_histories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::download-history.download-history",
+      "mappedBy": "note"
+    },
+    "bookmarks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::bookmark.bookmark",
+      "mappedBy": "note"
+    }
+  }
+}
