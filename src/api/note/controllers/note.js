@@ -3,6 +3,25 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::note.note', ({ strapi }) => ({
+
+  async find(ctx) {
+
+    const { data, meta } = await super.find(ctx);
+
+    // Check logged in user
+    const user = ctx.state.user;
+
+    // If user not logged in remove file field
+    if (!user) {
+      data.forEach(item => {
+        item.file = null;
+        item.externalLink = null;
+      });
+    }
+
+    return { data, meta };
+  },
+
   async create(ctx) {
     // logged in user
     const authUser = ctx.state.user;
