@@ -73,13 +73,13 @@ module.exports = createCoreController('api::note.note', ({ strapi }) => ({
 
   async downloadFile(ctx) {
     const { documentId } = ctx.params;
-    const user = ctx.state.user; // logged in user
+    const user = ctx.state.user;
 
     if (!user) {
       return ctx.unauthorized("Login required");
     }
 
-    // get note
+    // Get note
     const note = await strapi.documents("api::note.note").findOne({
       documentId,
       populate: ["file"],
@@ -89,35 +89,45 @@ module.exports = createCoreController('api::note.note', ({ strapi }) => ({
       return ctx.notFound("Note not found");
     }
 
-    // check history
-    const existing = await strapi.documents("api::download-history.download-history").findFirst({
-      filters: {
-        user: {
-          id: {
-            $eq: user.id,
+    // Check existing history
+    const existing =
+      await strapi.documents(
+        "api::download-history.download-history"
+      ).findFirst({
+        filters: {
+          user: {
+            id: {
+              $eq: user.id,
+            },
+          },
+          note: {
+            documentId: {
+              $eq: documentId,
+            },
           },
         },
-        note: {
-          documentId: {
-            $eq: documentId,
-          },
-        },
-      },
-    });
+      });
 
-    // if first time
+    // First time download only
     if (!existing) {
-      await strapi.documents("api::download-history.download-history").create({
+      // create history
+      await strapi.documents(
+        "api::download-history.download-history"
+      ).create({
         data: {
           user: user.id,
           note: note.id,
         },
       });
 
+      // Ensure number conversion
+      const currentDownloads = Number(note.downloaded || 0);
+
+      // update counter
       await strapi.documents("api::note.note").update({
         documentId,
         data: {
-          downloaded: (note.downloaded || 0) + 1,
+          downloaded: currentDownloads + 1,
         },
       });
     }
